@@ -5,7 +5,7 @@ const MainHeader = () => {
     const imageURL = "url(https://th.bing.com/th/id/OIP.ysOLarlEJyeGTwgBTl4-DAAAAA?w=474&h=265&rs=1&pid=ImgDetMain)";
     return (
         <>
-            <div className='w-full px-2 py-2 bg-center bg-cover bg-no-repeat bg-slate-900'>
+            <div className='w-full px-6 py-2 bg-center bg-cover bg-no-repeat bg-slate-900'>
                 <div className='bg-slate-900 bg-opacity-35 p-2 rounded-md flex items-center'>
                     <div className='animate-location-icon'>
                         <LocationOn className='h-8 w-8' />
