@@ -11,7 +11,7 @@ const MainHeader = () => {
                         <LocationOn className='h-8 w-8' />
                     </div>
                     <div className='ml-2 font-bold text-white'>
-                        <h2>NightHub Cafe</h2>
+                        <h2 className='text-xl'>NightHub <span className='text-blue-400'>CAFE</span></h2>
                         <h2 className='text-slate-200'>Kaulkhed, Akola</h2>
                     </div>
                 </div>

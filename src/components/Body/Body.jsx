@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import ExploreMenu from './ExploreMenu';
 
 const Body = () => {
   return (
@@ -11,7 +12,7 @@ const Body = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
-          Welcome to NightHub Cafe
+          Welcome to NightHub <span className='text-blue-400'>CAFE</span>
         </motion.h1>
         
         <motion.p 
@@ -20,7 +21,7 @@ const Body = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
         >
-          Your favorite meals delivered fast at your door.
+          Your favorite meals delivered fast at you Digital India
         </motion.p>
         
         <motion.div 
@@ -29,12 +30,7 @@ const Body = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1 }}
         >
-          <button className="bg-white text-gray-900 px-4 py-2 rounded-full shadow-lg hover:bg-gray-100 transition duration-300">
-            Order Now
-          </button>
-          <button className="bg-white text-red-500 px-4 py-2 rounded-full shadow-lg hover:bg-gray-100 transition duration-300">
-            Explore Menu
-          </button>
+            <ExploreMenu />
         </motion.div>
       </div>
     </div>

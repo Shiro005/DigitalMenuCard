@@ -2,6 +2,7 @@ import React from 'react'
 import MainHeader from './components/Header/MainHeader/MainHeader'
 import MainMenu from './components/Menu/MainMenu'
 import Body from './components/Body/Body'
+import Footer from './components/Footer/Footer'
 
 const App = () => {
   return (
@@ -9,6 +10,7 @@ const App = () => {
       <MainHeader />
       <Body />
       <MainMenu />
+      <Footer />
     </>
 
 
