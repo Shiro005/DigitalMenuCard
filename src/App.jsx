@@ -1,20 +1,39 @@
-import React from 'react'
-import MainHeader from './components/Header/MainHeader'
-import MainMenu from './components/Menu/MainMenu'
-import Body from './components/Body/Body'
-import Footer from './components/Footer/Footer'
+// src/App.jsx
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { CartProvider } from './components/context/CartContext'; // Ensure correct path
+import MainHeader from './components/Header/MainHeader';
+import Footer from './components/Footer/Footer';
+import MainMenu from './components/Menu/MainMenu';
+import Cart from './components/Cart/Cart';
+import Checkout from './components/Checkout/Checkout';
+import AdminLogin from './components/Admin/AdminLogin';
+import AdminPanel from './components/Admin/AdminPanel';
+import foodItemsData from './data/foodItems.json'; // Ensure correct path
 
 const App = () => {
+  const [adminLoggedIn, setAdminLoggedIn] = useState(false);
+  const [foodItems, setFoodItems] = useState([]);
+
+  useEffect(() => {
+    setFoodItems(foodItemsData); // Load data from JSON
+  }, []);
+
   return (
-    <>
-      <MainHeader />
-      <Body />
-      <MainMenu />
-      <Footer />
-    </>
+    <CartProvider>
+      <Router>
+        <MainHeader />
+        <Routes>
+          <Route path="/" element={<MainMenu menuItems={foodItems} />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/admin-login" element={<AdminLogin setAdminLoggedIn={setAdminLoggedIn} />} />
+          <Route path="/admin" element={adminLoggedIn ? <AdminPanel foodItems={foodItems} setFoodItems={setFoodItems} /> : <AdminLogin setAdminLoggedIn={setAdminLoggedIn} />} />
+        </Routes>
+        <Footer />
+      </Router>
+    </CartProvider>
+  );
+};
 
-
-  )
-}
-
-export default App
+export default App;
