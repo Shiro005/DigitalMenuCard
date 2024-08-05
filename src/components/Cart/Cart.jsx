@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import PaymentOptions from '../Payment/PaymentOption';
 
 const Cart = () => {
   const { cartItems, updateItemQuantity, removeItem, applyCoupon } = useCart();
@@ -7,6 +8,8 @@ const Cart = () => {
   const [discount, setDiscount] = useState(0);
   const [userName, setUserName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   const handleCouponApply = () => {
     const discountValue = applyCoupon(coupon);
@@ -26,6 +29,15 @@ const Cart = () => {
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discountedTotal = total - discount;
+
+  const handlePlaceOrder = () => {
+    if (!userName || !phoneNumber) {
+      setAlertMessage('Please fill in your name and phone number.');
+    } else {
+      setShowPaymentOptions(true);
+      setAlertMessage('');
+    }
+  };
 
   return (
     <div className="p-4">
@@ -100,6 +112,9 @@ const Cart = () => {
               placeholder="Enter your phone number"
             />
           </div>
+          {alertMessage && (
+            <p className="text-red-500">{alertMessage}</p>
+          )}
           <div className="mt-4">
             <p className="text-lg font-bold">Bill Summary</p>
             <p>Total: ₹{total.toFixed(2)}</p>
@@ -107,14 +122,24 @@ const Cart = () => {
             <p className="font-bold">Amount to Pay: ₹{discountedTotal.toFixed(2)}</p>
           </div>
           <button
-            onClick={() => alert('Order placed!')}
-            className="mt-4 px-4 py-2 bg-green-500 text-white rounded"
+            onClick={handlePlaceOrder}
+            className={`mt-4 px-4 py-2 rounded ${
+              !userName || !phoneNumber ? 'bg-gray-500' : 'bg-green-500 text-white'
+            }`}
+            disabled={!userName || !phoneNumber}
           >
             Place Order
           </button>
         </div>
       ) : (
         <p>Your cart is empty.</p>
+      )}
+      {showPaymentOptions && (
+        <PaymentOptions
+          amount={discountedTotal}
+          userName={userName}
+          onClose={() => setShowPaymentOptions(false)}
+        />
       )}
     </div>
   );
