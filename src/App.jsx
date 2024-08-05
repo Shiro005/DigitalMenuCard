@@ -9,7 +9,7 @@ import Cart from './components/Cart/Cart';
 import Checkout from './components/Checkout/Checkout';
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminPanel from './components/Admin/AdminPanel';
-import foodItemsData from './data/foodItems.json'; // Ensure correct path
+import foodItemsData from '../db.json'; // Ensure correct path
 
 const App = () => {
   const [adminLoggedIn, setAdminLoggedIn] = useState(false);

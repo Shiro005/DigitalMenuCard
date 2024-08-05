@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaPlus } from 'react-icons/fa';
-import foodItemsData from '../../data/foodItems.json'; // Ensure correct path
+import foodItemsData from '../../../db.json'; // Ensure correct path
 import { useCart } from '../context/CartContext'; // Ensure you have a CartContext
 
 const Body = () => {
@@ -9,20 +9,23 @@ const Body = () => {
   const [filter, setFilter] = useState('');
   const [addedItemId, setAddedItemId] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [showMainPopup, setShowMainPopup] = useState(false);
   const { addToCart } = useCart(); // Access cart context
+
+  const foodItems = foodItemsData.foodItems || []; // Extract food items
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
   };
 
-  const filteredItems = foodItemsData.filter(item => {
+  const filteredItems = foodItems.filter((item) => {
     if (filter === 'under100') {
       return item.price < 100;
     }
-    if (filter === 'dosa') {
+    if (filter === 'Dosa') {
       return item.category.toLowerCase() === 'dosa';
     }
-    if (filter === 'pizza') {
+    if (filter === 'Pizza') {
       return item.category.toLowerCase() === 'pizza';
     }
     return true;
@@ -32,14 +35,16 @@ const Body = () => {
     addToCart(item);
     setAddedItemId(item.id);
     setShowPopup(true);
+    setShowMainPopup(true);
 
     setTimeout(() => {
       setShowPopup(false);
+      setShowMainPopup(false);
     }, 1000);
   };
 
   return (
-    <div className="relative flex items-center justify-center p-5 my-3">
+    <div className="relative flex flex-col items-center justify-center p-5 my-3">
       <div className="text-center text-gray-900 space-y-6 p-6">
         <motion.h1
           className="text-4xl font-bold"
@@ -70,6 +75,38 @@ const Body = () => {
         </motion.button>
       </div>
 
+      {/* Main Screen Food Items */}
+      <div className="w-full p-5">
+        <div className="overflow-x-auto">
+          <div className="flex space-x-4 p-4">
+            <button onClick={() => setFilter('')} className="py-2 px-4 bg-gray-200 rounded-lg font-bold">All</button>
+            <button onClick={() => setFilter('under100')} className="py-2 px-4 bg-gray-200 rounded-lg font-bold">Under ₹100</button>
+            <button onClick={() => setFilter('dosa')} className="py-2 px-4 bg-gray-200 rounded-lg font-bold">Dosa</button>
+            <button onClick={() => setFilter('pizza')} className="py-2 px-4 bg-gray-200 rounded-lg font-bold">Pizza</button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredItems.map(item => (
+            <div key={item.id} className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <img src={item.image} alt={item.name} className="w-full h-32 object-cover" />
+              <div className="p-4">
+                <h3 className="text-lg font-semibold mb-2">{item.name}</h3>
+                <p className="text-gray-600 mb-2">{item.description}</p>
+                <p className="text-gray-800 font-bold mb-4">Price: ₹{item.price}</p>
+                <button
+                  className={`flex items-center justify-center py-2 px-4 rounded-lg ${addedItemId === item.id ? 'bg-red-500' : 'bg-blue-500'} text-white hover:bg-blue-400 transition duration-300`}
+                  onClick={() => handleAddToCart(item)}
+                >
+                  <FaPlus className="mr-2" /> Add to Cart
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Explore Menu Section */}
       {isMenuOpen && (
         <motion.div
           className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex justify-end"
@@ -92,35 +129,20 @@ const Body = () => {
               </button>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Filter by:</label>
-              <select
-                className="w-full p-2 border rounded"
-                value={filter}
-                onChange={handleFilterChange}
-              >
-                <option value="">All</option>
-                <option value="under100">Under ₹100</option>
-                <option value="dosa">Dosa</option>
-                <option value="pizza">Pizza</option>
-              </select>
-            </div>
-
             <ul>
               {filteredItems.map(item => (
-                <li key={item.id} className="flex items-center justify-between space-x-4 mb-4">
-                  <div className="flex items-center space-x-4">
-                    {/* <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" /> */}
-                    <div>
-                      <h3 className="text-lg font-semibold">{item.name}</h3>
-                      <p className="text-gray-600">Price: ₹{item.price}</p>
-                    </div>
-                  </div>
+                <li key={item.id} className="flex flex-col items-start bg-white shadow-md rounded-lg p-4 mb-4">
+                  <h3 className="text-lg font-semibold mb-2">{item.name}</h3>
+                  <p className="text-gray-600 mb-2">{item.description}</p>
+                  <p className="text-gray-800 font-bold mb-2">Price: ₹{item.price}</p>
                   <button
-                    className={`text-blue-500 hover:text-blue-700 ${addedItemId === item.id ? 'text-red-500' : ''}`}
-                    onClick={() => handleAddToCart(item)}
+                    className="flex items-center py-2 px-4 rounded-lg bg-slate-900 text-white hover:bg-slate-700 transition duration-300"
+                    onClick={() => {
+                      handleAddToCart(item);
+                      setShowPopup(true);
+                    }}
                   >
-                    <FaPlus />
+                    <FaPlus className="mr-2" /> Add to Cart
                   </button>
                 </li>
               ))}
@@ -135,11 +157,23 @@ const Body = () => {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 50 }}
-          transition={{ duration: 1 }}
+          transition={{ duration: 2 }}
         >
           Item added to cart!
         </motion.div>
       )}
+
+      {/* {showMainPopup && (
+        <motion.div
+          className="fixed bottom-4 left-4 bg-yellow-500 text-white px-4 py-2 rounded shadow-lg"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          transition={{ duration: 1 }}
+        >
+          Item added to cart from Explore Menu!
+        </motion.div>
+      )} */}
     </div>
   );
 };
