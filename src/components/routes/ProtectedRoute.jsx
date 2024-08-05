@@ -1,11 +1,32 @@
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import { AdminContext } from '../context/AdminContext';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import AdminLogin from './components/AdminLogin';
+import AdminPanel from './components/AdminPanel';
 
-const ProtectedRoute = ({ children }) => {
-    const { isAdmin } = useContext(AdminContext);
+const App = () => {
+  const [adminLoggedIn, setAdminLoggedIn] = useState(false);
+  const [foodItems, setFoodItems] = useState([]);
 
-    return isAdmin ? children : <Navigate to="/admin-login" />;
+  const ProtectedRoute = ({ children }) => {
+    return adminLoggedIn ? children : <Navigate to="/login" />;
+  };
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<AdminLogin setAdminLoggedIn={setAdminLoggedIn} />} />
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute>
+              <AdminPanel foodItems={foodItems} setFoodItems={setFoodItems} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
+  );
 };
 
-export default ProtectedRoute;
+export default App;

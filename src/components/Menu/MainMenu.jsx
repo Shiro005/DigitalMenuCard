@@ -8,7 +8,7 @@ const MainMenu = ({ menuItems }) => {
     const { addToCart } = useCart();
     const handleAddToCart = (item) => {
         addToCart(item);
-        // alert(`${item.name} has been added to your cart!`);
+        alert(`${item.name} has been added to your cart!`);
         <Stack sx={{ width: '100%' }} spacing={2}>
             <Alert severity="success">`${item.name} has been added to your cart!`</Alert>
         </Stack>
@@ -24,7 +24,7 @@ const MainMenu = ({ menuItems }) => {
                             key={item.id}
                             className="p-4 border rounded shadow-lg transition-transform transform hover:scale-105"
                         >
-                            <img src={item.image} alt={item.name} className="w-full h-48 object-cover mb-2 rounded" />
+                            {/* <img src={item.image} alt={item.name} className="w-full h-48 object-cover mb-2 rounded" /> */}
                             <h2 className="text-xl font-bold mb-2">{item.name}</h2>
                             <p className="mb-2">Price:  ₹{item.price}</p>
                             <p className="mb-2">Rating: {item.rating}</p>

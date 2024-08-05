@@ -110,7 +110,7 @@ const Body = () => {
               {filteredItems.map(item => (
                 <li key={item.id} className="flex items-center justify-between space-x-4 mb-4">
                   <div className="flex items-center space-x-4">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                    {/* <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" /> */}
                     <div>
                       <h3 className="text-lg font-semibold">{item.name}</h3>
                       <p className="text-gray-600">Price: ₹{item.price}</p>

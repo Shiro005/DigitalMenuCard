@@ -34,9 +34,9 @@ const Cart = () => {
         <div>
           <ul>
             {cartItems.map((item) => (
-              <li key={item.id} className="mb-4 flex items-center">
+              <li key={item.id} className="mb-4 flex items-center justify-between">
                 <img src={item.image} alt={item.name} className="w-16 h-16 mr-4" />
-                <div>
+                <div className="flex-grow">
                   <p className="font-bold">{item.name}</p>
                   <p>{item.description}</p>
                   <p>₹{item.price}</p>
@@ -44,7 +44,7 @@ const Cart = () => {
                     <button
                       onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                       className="px-2 py-1 bg-gray-200 rounded"
-                    //   disabled={item.quantity === 1}
+                      disabled={item.quantity === 1}
                     >
                       -
                     </button>
@@ -57,6 +57,12 @@ const Cart = () => {
                     </button>
                   </div>
                 </div>
+                <button
+                  onClick={() => removeItem(item.id)}
+                  className="px-2 py-1 bg-red-500 text-white rounded"
+                >
+                  Delete
+                </button>
               </li>
             ))}
           </ul>
