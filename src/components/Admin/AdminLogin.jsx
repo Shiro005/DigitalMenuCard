@@ -13,6 +13,7 @@ const AdminLogin = ({ setAdminLoggedIn }) => {
   };
 
   const handleLogin = () => {
+    console.log(`Attempting login with username: ${username} and password: ${password}`); // Debug line
     if (username === defaultAdmin.username && password === defaultAdmin.password) {
       setAdminLoggedIn(true);
       navigate('/admin');
