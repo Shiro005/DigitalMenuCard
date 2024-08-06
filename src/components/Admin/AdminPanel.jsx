@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { formatDistanceToNow } from 'date-fns'; // For displaying time ago
+import { formatDistanceToNow } from 'date-fns';
 
 const AdminPanel = () => {
   const [foodItems, setFoodItems] = useState([]);
