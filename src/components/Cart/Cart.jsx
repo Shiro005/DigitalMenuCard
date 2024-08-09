@@ -3,15 +3,17 @@ import { useCart } from '../context/CartContext';
 import PaymentOptions from '../Payment/PaymentOption';
 
 const Cart = () => {
-  const { cartItems, updateItemQuantity, removeItem, applyCoupon } = useCart();
+  const { cartItems, updateItemQuantity, removeItem, clearCart } = useCart();
   const [coupon, setCoupon] = useState('');
   const [discount, setDiscount] = useState(0);
   const [isPaymentOptionsOpen, setPaymentOptionsOpen] = useState(false);
   const [userName, setUserName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [notification, setNotification] = useState('');
+  const [orderDetails, setOrderDetails] = useState(null);
 
   const handleCouponApply = () => {
+    // Implement coupon application logic
     const discountValue = applyCoupon(coupon);
     if (discountValue) {
       setDiscount(discountValue);
@@ -34,7 +36,18 @@ const Cart = () => {
       setNotification('Please fill in your name and phone number');
       return;
     }
+    setOrderDetails({
+      items: cartItems,
+      userName,
+      phoneNumber,
+      total: discountedTotal,
+    });
     setPaymentOptionsOpen(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    clearCart();  // Clear the cart after successful payment
+    setNotification('Order placed successfully!');
   };
 
   const handlePaymentOptionsClose = () => {
@@ -150,6 +163,7 @@ const Cart = () => {
         <PaymentOptions
           amount={discountedTotal}
           userName={userName}
+          onSuccess={handlePaymentSuccess}
           onClose={handlePaymentOptionsClose}
         />
       )}

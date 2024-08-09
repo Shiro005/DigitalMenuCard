@@ -1,196 +1,118 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { formatDistanceToNow } from 'date-fns';
+
+// Function to load data from local storage
+const loadFoodItems = () => {
+  const data = localStorage.getItem('foodItems');
+  return data ? JSON.parse(data) : [];
+};
+
+// Function to save data to local storage
+const saveFoodItems = (items) => {
+  localStorage.setItem('foodItems', JSON.stringify(items));
+};
 
 const AdminPanel = () => {
-  const [foodItems, setFoodItems] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [newItem, setNewItem] = useState({ id: '', name: '', price: '', rating: '', image: '', category: '' });
-  const [editItem, setEditItem] = useState(null);
+  const [foodItems, setFoodItems] = useState(loadFoodItems());
+  const [newItem, setNewItem] = useState({ name: '', price: '', category: '' });
 
   useEffect(() => {
-    fetchFoodItems();
-    fetchOrders();
+    // Load food items from local storage when the component mounts
+    setFoodItems(loadFoodItems());
   }, []);
 
-  const fetchFoodItems = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/foodItems');
-      setFoodItems(response.data);
-    } catch (error) {
-      console.error('Error fetching food items:', error);
-    }
+  const handleDeleteItem = (itemId) => {
+    const updatedItems = foodItems.filter((item) => item.id !== itemId);
+    setFoodItems(updatedItems);
+    saveFoodItems(updatedItems); // Save the updated list to local storage
   };
 
-  const fetchOrders = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/orders');
-      setOrders(response.data);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-    }
+  const handleEditItem = (itemId) => {
+    const itemToEdit = foodItems.find((item) => item.id === itemId);
+    setNewItem(itemToEdit);
   };
 
-  const handleAddItem = async () => {
-    try {
-      await axios.post('http://localhost:5000/foodItems', newItem);
-      setNewItem({ id: '', name: '', price: '', rating: '', image: '', category: '' });
-      fetchFoodItems();
-    } catch (error) {
-      console.error('Error adding food item:', error);
-    }
+  const handleSaveEdit = () => {
+    const updatedItems = foodItems.map((item) =>
+      item.id === newItem.id ? newItem : item
+    );
+    setFoodItems(updatedItems);
+    saveFoodItems(updatedItems); // Save the updated list to local storage
+    setNewItem({ name: '', price: '', category: '' });
   };
 
-  const handleUpdateItem = async () => {
-    try {
-      await axios.put(`http://localhost:5000/foodItems/${editItem.id}`, editItem);
-      setEditItem(null);
-      fetchFoodItems();
-    } catch (error) {
-      console.error('Error updating food item:', error);
-    }
+  const handleAddItem = () => {
+    const newItemWithId = { ...newItem, id: Date.now() };
+    const updatedItems = [...foodItems, newItemWithId];
+    setFoodItems(updatedItems);
+    saveFoodItems(updatedItems); // Save the updated list to local storage
+    setNewItem({ name: '', price: '', category: '' });
   };
-
-  const handleDeleteItem = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/foodItems/${id}`);
-      fetchFoodItems();
-    } catch (error) {
-      console.error('Error deleting food item:', error);
-    }
-  };
-
-  const handleOrderDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/orders/${id}`);
-      fetchOrders();
-    } catch (error) {
-      console.error('Error deleting order:', error);
-    }
-  };
-
-  // Group food items by category
-  const groupedFoodItems = foodItems.reduce((acc, item) => {
-    (acc[item.category] = acc[item.category] || []).push(item);
-    return acc;
-  }, {});
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100">
-      <div className="bg-white p-6 rounded shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Admin Panel</h2>
+    <div className="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-lg">
+      <h2 className="text-3xl font-bold mb-6">Admin Panel - Manage Food Items</h2>
 
-        <div className="mb-4">
-          <h3 className="text-xl font-bold mb-2">Add / Edit Food Item</h3>
-          <input
-            type="text"
-            placeholder="ID"
-            value={editItem ? editItem.id : newItem.id}
-            onChange={(e) => (editItem ? setEditItem({ ...editItem, id: e.target.value }) : setNewItem({ ...newItem, id: e.target.value }))}
-            className="mb-2 p-2 border border-gray-300 rounded w-full"
-          />
-          <input
-            type="text"
-            placeholder="Name"
-            value={editItem ? editItem.name : newItem.name}
-            onChange={(e) => (editItem ? setEditItem({ ...editItem, name: e.target.value }) : setNewItem({ ...newItem, name: e.target.value }))}
-            className="mb-2 p-2 border border-gray-300 rounded w-full"
-          />
-          <input
-            type="text"
-            placeholder="Price"
-            value={editItem ? editItem.price : newItem.price}
-            onChange={(e) => (editItem ? setEditItem({ ...editItem, price: e.target.value }) : setNewItem({ ...newItem, price: e.target.value }))}
-            className="mb-2 p-2 border border-gray-300 rounded w-full"
-          />
-          <input
-            type="text"
-            placeholder="Rating"
-            value={editItem ? editItem.rating : newItem.rating}
-            onChange={(e) => (editItem ? setEditItem({ ...editItem, rating: e.target.value }) : setNewItem({ ...newItem, rating: e.target.value }))}
-            className="mb-2 p-2 border border-gray-300 rounded w-full"
-          />
-          <input
-            type="text"
-            placeholder="Image URL"
-            value={editItem ? editItem.image : newItem.image}
-            onChange={(e) => (editItem ? setEditItem({ ...editItem, image: e.target.value }) : setNewItem({ ...newItem, image: e.target.value }))}
-            className="mb-2 p-2 border border-gray-300 rounded w-full"
-          />
-          <input
-            type="text"
-            placeholder="Category"
-            value={editItem ? editItem.category : newItem.category}
-            onChange={(e) => (editItem ? setEditItem({ ...editItem, category: e.target.value }) : setNewItem({ ...newItem, category: e.target.value }))}
-            className="mb-2 p-2 border border-gray-300 rounded w-full"
-          />
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">Add/Edit Food Item</h3>
+        <input
+          type="text"
+          placeholder="Name"
+          value={newItem.name}
+          onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+          className="p-2 border rounded-lg w-full mb-2"
+        />
+        <input
+          type="number"
+          placeholder="Price"
+          value={newItem.price}
+          onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+          className="p-2 border rounded-lg w-full mb-2"
+        />
+        <input
+          type="text"
+          placeholder="Category"
+          value={newItem.category}
+          onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+          className="p-2 border rounded-lg w-full mb-4"
+        />
+        {newItem.id ? (
           <button
-            onClick={editItem ? handleUpdateItem : handleAddItem}
-            className="bg-green-500 text-white p-2 rounded w-full"
+            onClick={handleSaveEdit}
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-full"
           >
-            {editItem ? 'Update Item' : 'Add Item'}
+            Save Edit
           </button>
-        </div>
-
-        <div>
-          <h3 className="text-xl font-bold mb-2">Food Items</h3>
-          {Object.keys(groupedFoodItems).map((category) => (
-            <div key={category} className="mb-6">
-              <h4 className="text-lg font-bold mb-2">{category}</h4>
-              <ul>
-                {groupedFoodItems[category].map(item => (
-                  <li key={item.id} className="flex justify-between items-center mb-2">
-                    <div>
-                      {item.name} - ₹{item.price} - {item.rating} stars
-                    </div>
-                    <div className='flex mx-2'>
-                      <button
-                        onClick={() => { setEditItem(item); }}
-                        className="bg-blue-500 text-white p-1 rounded mr-2"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteItem(item.id)}
-                        className="bg-red-500 text-white p-1 rounded"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div>
-          <h3 className="text-xl font-bold mb-2">Orders</h3>
-          <ul>
-            {orders.map(order => (
-              <li key={order.id} className="mb-4 p-4 border border-gray-300 rounded">
-                <div>
-                  <strong>Name:</strong> {order.name}<br />
-                  <strong>Phone:</strong> {order.phone}<br />
-                  <strong>Order Details:</strong> {order.details.map(detail => (
-                    <div key={detail.id}>
-                      <strong>{detail.name}</strong> - Quantity: {detail.quantity}<br />
-                    </div>
-                  ))}<br />
-                  <strong>Payment Mode:</strong> {order.payment}<br />
-                  <strong>Order Time:</strong> {formatDistanceToNow(new Date(order.createdAt), { addSuffix: true })}
-                </div>
-                <button
-                  onClick={() => handleOrderDelete(order.id)}
-                  className="bg-red-500 text-white p-1 rounded mt-2"
-                >
-                  Delete Order
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        ) : (
+          <button
+            onClick={handleAddItem}
+            className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 w-full"
+          >
+            Add Item
+          </button>
+        )}
       </div>
+
+      <ul className="space-y-4">
+        {foodItems.map((item) => (
+          <li key={item.id} className="p-4 border-b border-gray-200">
+            <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
+            <p className="mb-2"><strong>Price:</strong> ₹{item.price}</p>
+            <p className="mb-2"><strong>Category:</strong> {item.category}</p>
+            <button
+              onClick={() => handleEditItem(item.id)}
+              className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 mr-2"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => handleDeleteItem(item.id)}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

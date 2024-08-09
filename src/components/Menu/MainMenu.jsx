@@ -24,7 +24,7 @@ const MainMenu = ({ menuItems }) => {
                             key={item.id}
                             className="p-4 border rounded shadow-lg transition-transform transform hover:scale-105"
                         >
-                            {/* <img src={item.image} alt={item.name} className="w-full h-48 object-cover mb-2 rounded" /> */}
+                            <img src={item.image} alt={item.name} className="w-full h-48 object-cover mb-2 rounded" />
                             <h2 className="text-xl font-bold mb-2">{item.name}</h2>
                             <p className="mb-2">Price:  ₹{item.price}</p>
                             <p className="mb-2">Rating: {item.rating}</p>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus } from 'react-icons/fa';
 import foodItemsData from '../../../db.json'; // Ensure correct path
 import { useCart } from '../context/CartContext'; // Ensure you have a CartContext
@@ -11,12 +11,29 @@ const Body = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showMainPopup, setShowMainPopup] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
   const { addToCart } = useCart(); // Access cart context
 
   const foodItems = foodItemsData.foodItems || []; // Extract food items
+  const categories = [...new Set(foodItems.map(item => item.category))]; // Get unique categories
 
-  const handleFilterChange = (e) => {
-    setFilter(e.target.value);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentOfferIndex(prevIndex => (prevIndex + 1) % offerCards.length);
+    }, 3000); // Change offer card every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const offerCards = [
+    { title: 'Limited Time Offers!', description: 'Get up to 30% OFF on your favorite meals', bg: 'bg-gradient-to-r from-purple-500 to-indigo-500' },
+    { title: 'Weekend Specials!', description: 'Enjoy 20% OFF on orders above ₹500', bg: 'bg-gradient-to-r from-green-400 to-blue-500' },
+    { title: 'Family Meals', description: 'Get a 15% discount on family combos', bg: 'bg-gradient-to-r from-pink-500 to-red-500' },
+    { title: 'Happy Hours!', description: 'Buy 1 Get 1 Free on select items', bg: 'bg-gradient-to-r from-yellow-500 to-orange-500' },
+  ];
+
+  const handleFilterChange = (category) => {
+    setFilter(category);
   };
 
   const filteredItems = foodItems.filter((item) => {
@@ -28,7 +45,7 @@ const Body = () => {
     }
     return filter === '';
   });
-  
+
   const handleAddToCart = (item) => {
     addToCart(item);
     setAddedItemId(item.id);
@@ -42,84 +59,108 @@ const Body = () => {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center p-5 my-3">
-      <div className="text-center text-gray-900 space-y-6 p-6">
-        <motion.h1
-          className="text-4xl font-bold"
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-        >
-          Welcome to NightHub <span className='text-blue-500'>CAFE</span>
-        </motion.h1>
-
-        <motion.p
-          className="text-xl"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-        >
-          Your favorite meals delivered fast at your Digital India
-        </motion.p>
-
-        <motion.button
-          className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-400 transition duration-300"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1 }}
-          onClick={() => setIsMenuOpen(true)}
-        >
-          Explore Menu
-        </motion.button>
+    <div className="relative flex flex-col items-center justify-center p-3 my-3 bg-gray-50">
+      {/* Offers Banner */}
+      <div className="w-full overflow-x-hidden p-5 mb-6 relative h-40">
+        <AnimatePresence>
+          {offerCards.map((offer, index) => (
+            index === currentOfferIndex && (
+              <motion.div
+                key={index}
+                className={`absolute inset-0 flex flex-col items-center justify-center text-white p-4 rounded-lg shadow-lg ${offer.bg} transition-all duration-1000`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1 }}
+              >
+                <motion.h2
+                  className="text-3xl font-bold mb-2"
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1 }}
+                >
+                  {offer.title}
+                </motion.h2>
+                <motion.p
+                  className="text-lg"
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1 }}
+                >
+                  {offer.description}
+                </motion.p>
+              </motion.div>
+            )
+          ))}
+        </AnimatePresence>
       </div>
 
-      {/* Main Screen Food Items */}
-      <div className="w-full p-5">
-        <div className="overflow-x-auto">
-          <div className="flex space-x-4 p-4">
-            <button onClick={() => setFilter('')} className="py-2 px-4 bg-gray-200 rounded-lg font-bold">All</button>
-            <button onClick={() => setFilter('under100')} className="py-2 px-4 bg-gray-200 rounded-lg font-bold">Under ₹100</button>
-            <button onClick={() => setFilter('Dosa')} className="py-2 px-4 bg-gray-200 rounded-lg font-bold">Dosa</button>
-            <button onClick={() => setFilter('Pizza')} className="py-2 px-4 bg-gray-200 rounded-lg font-bold">Pizza</button>
-            {/* Add more filter buttons as needed */}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredItems.map(item => (
-            <div
-              key={item.id}
-              className="bg-white shadow-lg rounded-lg p-4 hover:shadow-xl transition duration-300 cursor-pointer"
-              onClick={() => setSelectedItem(item)}
+      {/* Categories Scroll */}
+      <div className="w-full max-w-6xl overflow-x-auto whitespace-nowrap mb-6">
+        <div className="flex space-x-4 px-2 py-2">
+          {categories.map((category, index) => (
+            <motion.button
+              key={index}
+              className={`px-4 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-110 ${filter === category ? 'bg-gray-800 text-white shadow-lg' : 'bg-gray-200 text-gray-800'} hover:bg-gray-800 hover:text-white`}
+              onClick={() => handleFilterChange(category)}
+              whileHover={{ scale: 1.1 }}
             >
-              <h3 className="text-lg font-semibold mb-2">{item.name}</h3>
-              <p className="text-gray-600 mb-2">{item.description}</p>
-              <p className="text-gray-800 font-bold mb-4">Price: ₹{item.price}</p>
-              <button
-                className={`flex items-center justify-center py-2 px-4 rounded-lg ${addedItemId === item.id ? 'bg-red-500' : 'bg-blue-500'} text-white hover:bg-blue-400 transition duration-300`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAddToCart(item);
-                }}
-              >
-                <FaPlus className="mr-2" /> Add to Cart
-              </button>
-            </div>
+              {category}
+            </motion.button>
           ))}
         </div>
+        <div className="h-1 w-full bg-gradient-to-r from-gray-400 to-gray-800 mt-2 rounded-lg"></div>
       </div>
+
+      {/* Best Quality Picks */}
+      <motion.div
+        className="w-full max-w-6xl p-5 mb-12 bg-white rounded-lg shadow-lg"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">Top Quality Picks</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {filteredItems
+            .filter(item => item.rating >= 4.5)
+            .map(item => (
+              <div
+                key={item.id}
+                className="bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+              >
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.name}</h3>
+                <p className="text-lg font-bold text-red-500 mb-2">₹{item.price}</p>
+                <p className="text-sm text-gray-600 mb-4">Rating: ⭐{item.rating}</p>
+                <button
+                  className={`flex items-center justify-center py-2 px-4 rounded-lg ${addedItemId === item.id ? 'bg-green-600' : 'bg-yellow-400'} text-white hover:bg-yellow-500 transition-colors duration-300 font-bold`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCart(item);
+                  }}
+                >
+                  <FaPlus className="mr-2" /> Add to Cart
+                </button>
+              </div>
+            ))}
+        </div>
+      </motion.div>
 
       {/* Explore Menu Section */}
       {isMenuOpen && (
         <motion.div
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex justify-end"
+          className="fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex justify-end"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
           onClick={() => setIsMenuOpen(false)}
         >
           <motion.div
-            className="bg-white w-3/4 max-w-md h-full shadow-lg p-6 overflow-y-auto"
+            className="bg-white w-full md:w-3/4 lg:w-1/2 h-full max-w-lg shadow-lg p-6 overflow-y-auto"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             transition={{ type: 'spring', stiffness: 300 }}
@@ -139,7 +180,7 @@ const Body = () => {
                   <p className="text-gray-600 mb-2">{item.description}</p>
                   <p className="text-gray-800 font-bold mb-2">Price: ₹{item.price}</p>
                   <button
-                    className="flex items-center py-2 px-4 rounded-lg bg-slate-900 text-white hover:bg-slate-700 transition duration-300"
+                    className="flex items-center py-2 px-4 rounded-lg bg-green-600 text-white hover:bg-green-500 transition-colors duration-300"
                     onClick={() => {
                       handleAddToCart(item);
                       setShowPopup(true);
@@ -154,53 +195,41 @@ const Body = () => {
         </motion.div>
       )}
 
-      {/* {showPopup && (
-        <motion.div
-          className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 50 }}
-          transition={{ duration: 0.5 }}
-        >
-          Item added to cart!
-        </motion.div>
-      )} */}
-
+      {/* Item Details Popup */}
       {selectedItem && (
         <motion.div
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center"
+          className="fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex justify-center items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          onClick={() => setSelectedItem(null)}
         >
           <motion.div
-            className="bg-white w-11/12 max-w-lg p-6 rounded-lg shadow-lg"
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
+            className="bg-white w-full md:w-3/4 lg:w-1/2 max-w-lg p-6 rounded-lg shadow-lg overflow-y-auto"
+            initial={{ y: '-100%' }}
+            animate={{ y: 0 }}
             transition={{ type: 'spring', stiffness: 300 }}
-            onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-2xl font-bold mb-4">{selectedItem.name}</h3>
-            <img src={selectedItem.image} alt={selectedItem.name} className="w-full h-48 object-cover mb-4" />
-            <p className="text-gray-600 mb-4">{selectedItem.description}</p>
-            <p className="text-gray-800 font-bold mb-4">Price: ₹{selectedItem.price}</p>
+            <h2 className="text-2xl font-bold mb-4">{selectedItem.name}</h2>
+            <img src={selectedItem.image} alt={selectedItem.name} className="w-full h-64 object-cover mb-4 rounded-lg" />
+            <p className="text-lg mb-4">{selectedItem.description}</p>
+            <p className="text-2xl font-bold text-red-600 mb-6">₹{selectedItem.price}</p>
             <button
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-400 transition duration-300 flex item-center content-center"
+              className="bg-yellow-400 hover:bg-yellow-500 text-white py-2 px-4 rounded-lg transition-colors duration-300"
               onClick={() => {
                 handleAddToCart(selectedItem);
                 setSelectedItem(null);
               }}
             >
-               Add to Cart
+              Add to Cart
             </button>
           </motion.div>
         </motion.div>
       )}
 
-      {showMainPopup && (
+      {/* Notification Popup */}
+      {showPopup && (
         <motion.div
-          className="fixed top-10 left-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg"
+          className="fixed top-0 right-0 p-4 bg-green-500 text-white rounded-lg shadow-lg"
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -50 }}

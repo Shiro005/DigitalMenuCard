@@ -25,7 +25,6 @@ const App = () => {
         <Routes>
           <Route path="/" element={<MainMenu menuItems={foodItems} />} />
           <Route path="/cart" element={<Cart />} />
-          {/* <Route path="/checkout" element={<Checkout />} /> */}
           <Route path="/admin-login" element={<AdminLogin setAdminLoggedIn={setAdminLoggedIn} />} />
           <Route path="/admin" element={adminLoggedIn ? <AdminPanel foodItems={foodItems} setFoodItems={setFoodItems} /> : <AdminLogin setAdminLoggedIn={setAdminLoggedIn} />} />
         </Routes>
