@@ -30,7 +30,6 @@ const Cart = () => {
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discountedTotal = total - discount;
 
-  // Phone number validation logic (must be 10 or 11 digits)
   const isPhoneNumberValid = phoneNumber.length === 10 || phoneNumber.length === 11;
 
   const handlePlaceOrder = () => {
@@ -43,7 +42,7 @@ const Cart = () => {
 
   const handlePaymentSuccess = (paymentMethod) => {
     const orderDetails = cartItems.map(item => `${item.name} x${item.quantity} - ₹${item.price * item.quantity}`).join('\n');
-    const messageTemplate = `Name: ${userName}\nPhone: ${phoneNumber}\nOrder Details:\n${orderDetails}\nTotal: ₹${discountedTotal}\nPayment Method: ${paymentMethod}`;
+    const messageTemplate = `Name: ${userName}\nPhone: ${phoneNumber}\nOrder Details:${orderDetails}\nTotal: ₹${discountedTotal}\nPayment Method: ${paymentMethod}`;
 
     // Display the receipt to the user
     const receipt = `
