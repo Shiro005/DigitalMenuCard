@@ -134,10 +134,10 @@ const Body = () => {
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.name}</h3>
-                <p className="text-lg font-bold text-red-500 mb-2">₹{item.price}</p>
+                <p className="text-lg font-bold text-slate-800 mb-2">₹{item.price}</p>
                 <p className="text-sm text-gray-600 mb-4">Rating: ⭐{item.rating}</p>
                 <button
-                  className={`flex items-center justify-center py-2 px-4 rounded-lg ${addedItemId === item.id ? 'bg-green-600' : 'bg-yellow-400'} text-white hover:bg-yellow-500 transition-colors duration-300 font-bold`}
+                  className={`flex items-center justify-center py-2 px-4 rounded-lg ${addedItemId === item.id ? 'bg-green-600' : 'bg-yellow-500'} text-white hover:bg-yellow-500 transition-colors duration-300 font-bold shadow-lg`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleAddToCart(item);

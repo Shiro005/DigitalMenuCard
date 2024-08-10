@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { FaTrashAlt } from 'react-icons/fa';
 import PaymentOptions from '../Payment/PaymentOption';
 
 const Cart = () => {
@@ -79,9 +80,9 @@ const Cart = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-lg">
-      <h2 className="text-3xl font-bold mb-6">Your Cart</h2>
+      <h2 className="text-2xl font-bold mb-3 text-slate-800">Your Cart</h2>
       {notification && (
-        <div className="mb-4 p-4 bg-red-100 text-red-700 border border-red-300 rounded">
+        <div className="mb-4 p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg">
           {notification}
         </div>
       )}
@@ -89,24 +90,27 @@ const Cart = () => {
         <div>
           <ul className="space-y-4">
             {cartItems.map((item) => (
-              <li key={item.id} className="flex items-center p-4 border-b border-gray-200">
-                <img src={item.image} alt={item.name} className="w-24 h-24 mr-4 object-cover" />
-                <div className="flex-grow">
-                  <h3 className="text-xl font-semibold">{item.name}</h3>
-                  <p className="text-gray-600">{item.description}</p>
-                  <p className="text-lg font-bold">₹{item.price}</p>
-                  <div className="flex items-center mt-2">
+              <li key={item.id} className="flex flex-col md:flex-row items-start bg-white rounded-lg shadow-lg mb-4 p-4 relative">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full md:w-32 h-32 object-cover rounded-lg mb-4 md:mb-0"
+                />
+                <div className="flex-grow pl-4">
+                  <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
+                  <p className="text-lg font-bold text-gray-800 mb-2">₹{item.price}</p>
+                  <div className="flex items-center mb-2">
                     <button
                       onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                      className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
+                      className="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-transform duration-300"
                       disabled={item.quantity === 1}
                     >
                       -
                     </button>
-                    <span className="mx-2 text-lg">{item.quantity}</span>
+                    <span className="mx-4 text-lg font-medium">{item.quantity}</span>
                     <button
                       onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                      className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
+                      className="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-transform duration-300"
                     >
                       +
                     </button>
@@ -114,28 +118,32 @@ const Cart = () => {
                 </div>
                 <button
                   onClick={() => removeItem(item.id)}
-                  className="ml-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  className="absolute top-4 right-4 p-2 bg-slate-900 text-white rounded-full hover:bg-red-600 transition-transform duration-300"
                 >
-                  Remove
+                  <FaTrashAlt className="h-5 w-5" />
                 </button>
               </li>
             ))}
+
           </ul>
           <div className="mt-6 border-t border-gray-200 pt-4">
             <div className="mb-4">
               <label className="block text-gray-700 font-semibold">Coupon Code</label>
-              <input
-                type="text"
-                value={coupon}
-                onChange={(e) => setCoupon(e.target.value)}
-                className="mt-1 p-2 border rounded-lg w-full"
-              />
-              <button
-                onClick={handleCouponApply}
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              >
-                Apply Coupon
-              </button>
+              <div className="flex">
+                <input
+                  type="text"
+                  value={coupon}
+                  onChange={(e) => setCoupon(e.target.value)}
+                  className="mt-1 p-2 border rounded-lg flex-grow"
+                  placeholder="Enter coupon code"
+                />
+                <button
+                  onClick={handleCouponApply}
+                  className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-transform duration-300"
+                >
+                  Apply
+                </button>
+              </div>
             </div>
             <div className="mb-4">
               <p className="text-lg font-semibold">Total: ₹{total.toFixed(2)}</p>
