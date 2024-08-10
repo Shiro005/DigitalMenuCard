@@ -10,7 +10,6 @@ const Cart = () => {
   const [userName, setUserName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [notification, setNotification] = useState('');
-  const [orderDetails, setOrderDetails] = useState(null);
 
   const handleCouponApply = () => {
     // Implement coupon application logic
@@ -31,23 +30,48 @@ const Cart = () => {
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discountedTotal = total - discount;
 
+  // Phone number validation logic (must be 10 or 11 digits)
+  const isPhoneNumberValid = phoneNumber.length === 10 || phoneNumber.length === 11;
+
   const handlePlaceOrder = () => {
-    if (!userName || !phoneNumber) {
-      setNotification('Please fill in your name and phone number');
+    if (!userName || !isPhoneNumberValid) {
+      setNotification('Please fill in your name and a valid phone number');
       return;
     }
-    setOrderDetails({
-      items: cartItems,
-      userName,
-      phoneNumber,
-      total: discountedTotal,
-    });
     setPaymentOptionsOpen(true);
   };
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = (paymentMethod) => {
+    const orderDetails = cartItems.map(item => `${item.name} x${item.quantity} - ₹${item.price * item.quantity}`).join('\n');
+    const messageTemplate = `Name: ${userName}\nPhone: ${phoneNumber}\nOrder Details:\n${orderDetails}\nTotal: ₹${discountedTotal}\nPayment Method: ${paymentMethod}`;
+
+    // Display the receipt to the user
+    const receipt = `
+      ==========================
+      ORDER RECEIPT
+      ==========================
+      Name: ${userName}
+      Phone: ${phoneNumber}
+      Date: ${new Date().toLocaleString()}
+      --------------------------------
+      ${orderDetails}
+      --------------------------------
+      Discount: -₹${discount.toFixed(2)}
+      Amount to Pay: ₹${discountedTotal.toFixed(2)}
+      Payment Method: ${paymentMethod}
+      ==========================
+    `;
+
+    alert(receipt); // Show the receipt to the user
+
+    // Send the receipt to the admin via SMS
+    const encodedMessage = encodeURIComponent(receipt);
+    const adminPhoneNumber = '8668722207';
+    window.location.href = `sms:${adminPhoneNumber}?body=${encodedMessage}`;
+
     clearCart();  // Clear the cart after successful payment
     setNotification('Order placed successfully!');
+    setPaymentOptionsOpen(false);
   };
 
   const handlePaymentOptionsClose = () => {
@@ -141,8 +165,8 @@ const Cart = () => {
             </div>
             <button
               onClick={handlePlaceOrder}
-              className={`mt-4 px-6 py-3 text-white rounded-lg ${userName && phoneNumber ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}
-              disabled={!userName || !phoneNumber}
+              className={`mt-4 px-6 py-3 text-white rounded-lg ${userName && isPhoneNumberValid ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}
+              disabled={!userName || !isPhoneNumberValid}
             >
               Place Order
             </button>
@@ -151,7 +175,7 @@ const Cart = () => {
       ) : (
         <div className="flex flex-col items-center justify-center h-64 bg-gray-100 rounded-lg p-6">
           <img
-            src="https://cdn-icons-png.flaticon.com/512/1029/1029233.png"
+            src="https://cdn-icons-png.flaticon.com/128/17541/17541640.png"
             alt="Empty Cart"
             className="w-24 h-24 mb-4"
           />
@@ -163,6 +187,8 @@ const Cart = () => {
         <PaymentOptions
           amount={discountedTotal}
           userName={userName}
+          phoneNumber={phoneNumber}
+          cartItems={cartItems}
           onSuccess={handlePaymentSuccess}
           onClose={handlePaymentOptionsClose}
         />
